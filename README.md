@@ -77,13 +77,13 @@ FlxG.switchState(new GameJoltLogin());
 # Commands available:
 
 `GameJoltAPI.checkStatus():Bool`
-> ^^ Checking to see if the user has signed in. Returns a `bool` value. `true` if signed in, `false` if not signed in.
+> Checking to see if the user has signed in. Returns a `bool` value. `true` if signed in, `false` if not signed in.
 
 `GameJoltAPI.getuserInfo(username):String`
-> ^^ Grabs the username and usertoken of the user and returns a `String`. <br>`username:Bool = true` -> `true` to grab username, `false` to grab usertoken.
+> Grabs the username and usertoken of the user and returns a `String`. <br>`username:Bool = true` -> `true` to grab username, `false` to grab usertoken.
 
 `GameJoltAPI.getTrophy(trophyID);`
-> ^^ `TrophyID:Int` -> ID of the trophy you want the player to earn.
+> `TrophyID:Int` -> ID of the trophy you want the player to earn.
 
 # Credits
 
