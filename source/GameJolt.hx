@@ -250,16 +250,15 @@ class GameJoltLogin extends MusicBeatSubstate
     static var trophyCheck:Bool = false;
     override function create()
     {
-        if(!login)
-            {
-                FlxG.sound.playMusic(Paths.music('freakyMenu'),0);
-                FlxG.sound.music.fadeIn(2, 0, 0.85);
-            }
+//         if(!login)
+//             {
+//                 FlxG.sound.playMusic(Paths.music('freakyMenu'),0);
+//                 FlxG.sound.music.fadeIn(2, 0, 0.85);
+// 		Conductor.changeBPM(102);
+//             }
 
-        trace(GJApi.initialized);
+        trace("init? " + GJApi.initialized);
         FlxG.mouse.visible = true;
-
-        Conductor.changeBPM(102);
 
         var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat', 'preload'));
 		bg.setGraphicSize(FlxG.width);
@@ -350,8 +349,7 @@ class GameJoltLogin extends MusicBeatSubstate
         cancelBox = new FlxButton(0,650, "Not Right Now", function()
         {
             FlxG.sound.play(Paths.sound('confirmMenu'), 0.7, false, null, true, function(){
-                FlxG.sound.music.stop();
-                FlxG.switchState(new GameSelectState());
+                FlxG.switchState(new MainMenuState());
             });
         });
 
@@ -415,7 +413,7 @@ class GameJoltLogin extends MusicBeatSubstate
         if (FlxG.keys.justPressed.ESCAPE)
         {
             FlxG.mouse.visible = false;
-            FlxG.switchState(new GameSelectState());
+            FlxG.switchState(new MainMenuState());
         }
 
         super.update(elapsed);
@@ -453,7 +451,7 @@ class GameJoltLogin extends MusicBeatSubstate
             System.exit(1337);
         }
         else
-            throw "Failed to restart bich";
+            throw "Failed to restart";
         #else
         System.exit(0);
         #end
