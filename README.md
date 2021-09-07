@@ -30,7 +30,7 @@ haxelib run lime rebuild systools [windows, mac, linux]
 If you are going to be releasing the source code of a mod with this integration, you need to place a few things into `Project.xml`.
 ## Place these into `Project.xml`:
 ```xml
-    <haxelib name="tentools" />
+    	<haxelib name="tentools" />
 	<haxelib name="systools" />
 	<ndll name="systools" haxelib="systools" />
 ```
@@ -74,15 +74,13 @@ GameJoltAPI.authDaUser(FlxG.save.data.gjUser, FlxG.save.data.gjToken);
 FlxG.switchState(new GameJoltLogin());
 ```
 
-# Commands available as of last update:
+# Commands available:
 
 `GameJoltAPI.checkStatus():Bool`
 > ^^ Checking to see if the user has signed in. Returns a `bool` value. `true` if signed in, `false` if not signed in.
 
 `GameJoltAPI.getuserInfo(username):String`
-> ^^ Grabs the username and usertoken of the user and returns a `String`.
-<br>
-> `username:Bool = true` -> `true` to grab username, `false` to grab usertoken.
+> ^^ Grabs the username and usertoken of the user and returns a `String`. <br>`username:Bool = true` -> `true` to grab username, `false` to grab usertoken.
 
 `GameJoltAPI.getTrophy(trophyID);`
 > ^^ `TrophyID:Int` -> ID of the trophy you want the player to earn.
