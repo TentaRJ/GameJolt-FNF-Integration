@@ -4,7 +4,7 @@
 
 ### Included in the repo is the API to add trophies and the state (GameJoltLogin) to sign the user in.
 
-### Programmed using Kade Engine 1.6.1. Support for other engines are limited, as I have not tested othe engines with this integration.
+### Programmed using Kade Engine 1.6.1. Support for other engines are limited, as I have not tested other engines with this integration.
 
 ### Have any issues? Report them to the repo via <a href="https://github.com/TentaRJ/GameJolt-FNF-Integration/issues">Github Issues</a>!
 
