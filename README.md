@@ -6,7 +6,7 @@
 
 ### Programmed using Kade Engine 1.6.1. Support for other engines are limited, as I have not tested othe engines with this integration.
 
-### Have any issues? Report them to the repo via <a href="https://github.com/TentaRJ/GameJolt-FNF-Integration/actions">Github Issues</a>!
+### Have any issues? Report them to the repo via <a href="https://github.com/TentaRJ/GameJolt-FNF-Integration/issues">Github Issues</a>!
 
 ### Thanks for reading this! Hope this all helps!
 
