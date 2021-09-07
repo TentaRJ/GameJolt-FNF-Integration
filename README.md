@@ -18,9 +18,9 @@
 
 I will be editing the API for this, meaning you have to download my custom haxelib library, <a href="https://github.com/TentaRJ/tentools">tentools</a>. 
 
-You also need to download and rebuild <a href="https://github.com/TentaRJ/tentools">Haya's version of systools</a>.
+You also need to download and rebuild <a href="https://github.com/haya3218/systools">Haya's version of systools</a>.
 
-## Run these in the terminal:
+### Run these in the terminal:
 ```
 haxelib git tentools https://github.com/TentaRJ/tentools.git
 haxelib git systools https://github.com/haya3218/systools
@@ -28,20 +28,21 @@ haxelib run lime rebuild systools [windows, mac, linux]
 ```
 
 If you are going to be releasing the source code of a mod with this integration, you need to place a few things into `Project.xml`.
-## Place these into `Project.xml`:
+### Place these into `Project.xml`:
 ```xml
     	<haxelib name="tentools" />
 	<haxelib name="systools" />
 	<ndll name="systools" haxelib="systools" />
 ```
 
-## Once that is all done, you can place `GameJolt.hx` into the `source/` folder of your project!
+### Once that is all done, you can place `GameJolt.hx` into the `source/` folder of your project!
 
 # SETUP:
 To add your game's keys, you will need to make a file in the source folder named GJKeys.hx (filepath: ../source/GJKeys.hx).
 <br>
 In this file, you will need to add the GJKeys class with two public static variables, `id:Int` and `key:String`.
-## `source/GJKeys.hx` example:
+
+### `source/GJKeys.hx` example:
 ```hx
 package;
 class GJKeys
@@ -50,7 +51,7 @@ class GJKeys
     public static var key:String = ""; // Put your game's private API key here
 }
 ```
-## **DO NOT SHARE YOUR GAME'S API KEY! You can add `source/GJKeys.hx` to a `.gitignore` file to make sure no one grabs the key! If someone gets it, they can send false data!**
+### **DO NOT SHARE YOUR GAME'S API KEY! You can add `source/GJKeys.hx` to a `.gitignore` file to make sure no one grabs the key! If someone gets it, they can send false data!**
 
 ### You can find your game's API key and ID code within the game page's settngs under the game API tab.
 
@@ -69,7 +70,7 @@ GameJoltAPI.authDaUser(FlxG.save.data.gjUser, FlxG.save.data.gjToken);
 
 ### The session will automatically start on login and will be pinged every 30 seconds. If it isn't pinged within 120 seconds, the session automatically ends from GameJolt's side.
 
-## You can open the login state by calling the GameJoltLogin state:
+### You can open the login state by calling the GameJoltLogin state:
 ```hx
 FlxG.switchState(new GameJoltLogin());
 ```
@@ -87,5 +88,5 @@ FlxG.switchState(new GameJoltLogin());
 
 # Credits
 
-- BrightFyre - Testing the API with Entity Origins
-- Haya - Systools fork
+- <a href = "https://github.com/brightfyregit">BrightFyre</a> - Testing the API with Entity Origins
+- <a href ="https://github.com/haya3218">Haya</a> - Systools fork
