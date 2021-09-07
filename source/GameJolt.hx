@@ -219,7 +219,7 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
 
 class GameJoltInfo extends FlxSubState
 {
-    public static var version:String = "1.0.2 beta";
+    public static var version:String = "1.0.2 Public Beta";
 }
 
 class GameJoltLogin extends MusicBeatSubstate
