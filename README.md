@@ -14,6 +14,10 @@
 
 #### **Repo last updated SEPT.7.2021 Version 1.0.2 Public Beta**
 
+# PLANS:
+
+### <a href="https://github.com/TentaRJ/GameJolt-FNF-Integration/projects/1">Github Project link</a>
+
 # REQUIREMENTS:
 
 I will be editing the API for this, meaning you have to download my custom haxelib library, <a href="https://github.com/TentaRJ/tentools">tentools</a>. 
@@ -81,7 +85,7 @@ GameJoltAPI.authDaUser(FlxG.save.data.gjUser, FlxG.save.data.gjToken);
 FlxG.switchState(new GameJoltLogin());
 ```
 
-# Commands available:
+# COMMANDS AVAILABLE:
 
 `GameJoltAPI.checkStatus():Bool`
 > Checking to see if the user has signed in. Returns a `bool` value. `true` if signed in, `false` if not signed in.
@@ -92,7 +96,7 @@ FlxG.switchState(new GameJoltLogin());
 `GameJoltAPI.getTrophy(trophyID);`
 > `TrophyID:Int` -> ID of the trophy you want the player to earn.
 
-# Credits
+# CREDITS:
 
 - <a href = "https://github.com/brightfyregit">BrightFyre</a> - Testing the API with Entity Origins
 - <a href ="https://github.com/haya3218">Haya</a> - Systools fork
