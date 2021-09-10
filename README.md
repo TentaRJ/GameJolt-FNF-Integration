@@ -57,6 +57,12 @@ class GJKeys
 
 # USAGE:
 
+## Make sure to put `import GameJolt.GameJoltAPI;` at the top of the file if you want to call a command!
+
+```hx
+import GameJolt.GameJoltAPI;
+```
+
 ## These commands **must** be ran before starting the API. Place these in `TitleState.hx`:
 
 ```hx
