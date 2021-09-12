@@ -98,5 +98,5 @@ FlxG.switchState(new GameJoltLogin());
 
 # CREDITS:
 
-- <a href = "https://github.com/brightfyregit">BrightFyre</a> - Testing the API with Entity Origins
+- <a href = "https://github.com/brightfyregit">BrightFyre</a> - Testing the API with Entity Origins & login UI design
 - <a href ="https://github.com/haya3218">Haya</a> - Systools fork
