@@ -86,15 +86,18 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
 {
     static var userLogin:Bool = false;
     public static var totalTrophies:Float = GJApi.TROPHIES_ACHIEVED + GJApi.TROPHIES_MISSING;
+	
     public static function getUserInfo(username:Bool = true):String /* Grabs user data and returns as a string, true for Username, false for Token */
     {
         if(username)return GJApi.username;
         else return GJApi.usertoken;
     }
+	
     public static function getStatus():Bool /* Checks to see if the user has signed in */
     {
         return userLogin;
     }
+	
     public static function connect() /* Sets the game ID and game key */
     {
         trace("Grabbing API keys...");
@@ -105,11 +108,12 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
     {
         if(!userLogin)
         {
-        GJApi.authUser(in1, in2, function(v:Bool)
+            GJApi.authUser(in1, in2, function(v:Bool)
             {
-                trace("user: "+(in1 == "" ? "n/a" : in1));
-                trace("token:"+in2);
-                if(v)
+                trace("user: " + (in1 == "" ? "n/a" : in1));
+                trace("token: " + in2);
+		    
+                if (v)
                     {
                         trace("User authenticated!");
                         FlxG.save.data.gjUser = in1;
@@ -137,6 +141,7 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
             });
         }
     }
+	
     public static function deAuthDaUser() /* Logs the user out and closes the game */
     {
         closeSession();
@@ -158,21 +163,33 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
         }
     }
 
-    // public static function isTropheyCollected(id:Int):Bool
-    // {
-    //     var value:Bool;
-    //     GJApi.fetchTrophy(id, function(data:Map<String, String>)
-    //         {
-    //             if (Std.string(data.get("achieved")) != "false")
-    //                 value=true;
-    //             else
-    //                 value=false;
+    /**
+     * This function checks if a GameJolt trophy is achieved.
+     * NOTE: The trophy must be visible, if not, return will be null.
+     *
+     * @param trophyID The ID of the GameJolt trophy you want to check.
+     */
+    public static function checkTrophy(trophyID:Int):Bool
+    {
+         var isAchieved:Bool;
+         GJApi.fetchTrophy(trophyID, function()
+         {
+	     @:privateAccess
+	     if (GJApi.returnMap.exists('achieved'))
+	     {
+	     	if (GJApi.returnMap.get('achieved').toString() != "false")
+                     	isAchieved = true;
+             	else
+                     	isAchieved = false;
+	     }
+	     else
 
-    //             trace(id+""+value);
+             trace(trophyID + ": " + isAchieved);
 
-    //         });
-    //     return value;
-    // }
+         });
+	    
+         return isAchieved;
+     }
     // public static function fetchAllTrophies()
     // {
     //     new FlxTimer().start(0.05, function(tmr:FlxTimer){trophyArray=[];});
