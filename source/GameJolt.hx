@@ -182,7 +182,6 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
              	else
                      	isAchieved = false;
 	     }
-	     else
 
              trace(trophyID + ": " + isAchieved);
 
