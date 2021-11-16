@@ -3,13 +3,12 @@ REQUIREMENTS:
 
 I will be editing the API for this, meaning you have to download a git:
 haxelib git tentools https://github.com/TentaRJ/tentools.git
-UPDATED SEPT.6.2021
 
 You need to download and rebuild SysTools, I think you only need it for Windows but just get it *just in case*:
 haxelib git systools https://github.com/haya3218/systools
 haxelib run lime rebuild systools [windows, mac, linux]
 
-SETUP:
+SETUP (GameJolt):
 To add your game's keys, you will need to make a file in the source folder named GJKeys.hx (filepath: ../source/GJKeys.hx)
 
 In this file, you will need to add the GJKeys class with two public static variables, id:Int and key:String
@@ -26,6 +25,20 @@ class GJKeys
 You can find your game's API key and ID code within the game page's settngs under the game API tab.
 
 Hope this helps! -tenta
+
+SETUP(Toasts):
+To use toasts, you will need to do a few things.
+
+Inside the Main class (Main.hx), you need to make a new variable called toastManager.
+`public static var gjToastManager.GJToastManager`
+
+Inside the setupGame function in the Main class, you will need to create the toastManager.
+`gjToastManager = new GJToastManager();`
+`addChild(gjToastManager);`
+
+Toasts can be called by using `Main.gjToastManager.createToast();`
+
+TYSM Firubii for your help! :heart:
 
 USAGE:
 To start up the API, the two commands you want to use will be:
@@ -48,60 +61,83 @@ GameJoltAPI.getTrophy(trophyID);
 Each trophy has an ID attached to it. Use that to give a trophy. It could be used for something like a week clear...
 
 Hope this helps! -tenta
-
-And yes, I run Mac. A fate worse than death.
 */
+package;
 
-import flixel.tile.FlxTile;
-import haxe.ds.ReadOnlyArray;
+// GameJolt things
+import haxe.iterators.StringIterator;
 import tentools.api.FlxGameJolt as GJApi;
 
-import openfl.display.BitmapData;
+// Login things
 import flixel.ui.FlxButton;
 import flixel.text.FlxText;
 import flixel.FlxSubState;
 import flixel.addons.ui.FlxUIInputText;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.util.FlxColor;
-import flixel.FlxG;
 import lime.system.System;
-import flixel.util.FlxTimer;
 import flixel.FlxSprite;
 import flixel.ui.FlxBar;
-import flixel.addons.transition.TransitionData;
-import flixel.addons.transition.FlxTransitionableState;
-import flixel.math.FlxPoint;
-import flixel.math.FlxRect;
-import flixel.graphics.FlxGraphic;
-import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
-import Sys;
 
-// Unused
-// class GameJoltGameData
-// {
-//     public static var trophyArray:Array<Int> = [147704, 148024]; /* Place your game's trophies here if you want them to count for the completion bar */
-// }
+// Toast things
+import flixel.util.FlxTimer;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
+import openfl.display.BitmapData;
+import openfl.text.TextField;
+import openfl.display.Bitmap;
+import openfl.text.TextFormat;
+import openfl.Lib;
+import flixel.FlxG;
+import openfl.display.Sprite;
+
+using StringTools;
 
 class GameJoltAPI // Connects to tentools.api.FlxGameJolt
 {
+    /**
+     * Inline variable to see if the user has logged in.
+     * True for logged in, false for not logged in.
+     */
     static var userLogin:Bool = false;
-    public static var totalTrophies:Float = GJApi.TROPHIES_ACHIEVED + GJApi.TROPHIES_MISSING;
-    public static function getUserInfo(username:Bool = true):String /* Grabs user data and returns as a string, true for Username, false for Token */
+
+    /**
+     * Grabs user data and returns as a string, true for Username, false for Token
+     * @param username Bool value
+     * @return String 
+     */
+    public static function getUserInfo(username:Bool = true):String
     {
         if(username)return GJApi.username;
         else return GJApi.usertoken;
     }
-    public static function getStatus():Bool /* Checks to see if the user has signed in */
+
+    /**
+     * Returns the user login status
+     * @return Bool
+     */
+    public static function getStatus():Bool
     {
         return userLogin;
     }
-    public static function connect() /* Sets the game ID and game key */
+
+    /**
+     * Sets the game API key from GJKeys.api
+     * Doesn't return anything
+     */
+    public static function connect() 
     {
         trace("Grabbing API keys...");
         GJApi.init(Std.int(GJKeys.id), Std.string(GJKeys.key), false);
     }
 
-    public static function authDaUser(in1, in2, ?loginArg:Bool = false) /* Logs the user in */
+    /**
+     * Inline function to auth the user. Shouldn't be used outside of GameJoltAPI things.
+     * @param in1 username
+     * @param in2 token
+     * @return Logs the user in
+     */
+    public static function authDaUser(in1, in2, ?loginArg:Bool = false)
     {
         if(!userLogin)
         {
@@ -137,7 +173,12 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
             });
         }
     }
-    public static function deAuthDaUser() /* Logs the user out and closes the game */
+    
+    /**
+     * Inline function to deauth the user, shouldn't be used out of GameJoltLogin state!
+     * @return  Logs the user out and closes the game
+     */
+    public static function deAuthDaUser()
     {
         closeSession();
         userLogin = false;
@@ -147,55 +188,96 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
         FlxG.save.flush();
         trace(FlxG.save.data.gjUser + FlxG.save.data.gjToken);
         trace("Logged out!");
-        GameJoltLogin.restart();
+        System.exit(0);
     }
 
+    /**
+     * Give a trophy!
+     * @param trophyID Trophy ID. Check your game's API settings for trophy IDs.
+     */
     public static function getTrophy(trophyID:Int) /* Awards a trophy to the user! */
     {
         if(userLogin)
         {
-            GJApi.addTrophy(trophyID, function(){trace("Unlocked a trophy with an ID of "+trophyID);});
+            GJApi.addTrophy(trophyID, function(data:Map<String,String>){
+                trace(data);
+                var bool:Bool = false;
+                if (data.exists("message"))
+                    bool = true;
+                Main.gjToastManager.createToast(Paths.getLibraryPath("images/stepmania-icon.png"), "Unlocked a new trophy"+(bool ? "... again?" : "!"), "Check GameJolt to see your new trophy!");
+            });
         }
     }
 
-    // public static function isTropheyCollected(id:Int):Bool
-    // {
-    //     var value:Bool;
-    //     GJApi.fetchTrophy(id, function(data:Map<String, String>)
-    //         {
-    //             if (Std.string(data.get("achieved")) != "false")
-    //                 value=true;
-    //             else
-    //                 value=false;
+    /**
+     * Checks a trophy to see if it was collected
+     * @param id TrophyID
+     * @return Bool (True for achieved, false for unachieved)
+     */
+    public static function checkTrophy(id:Int):Bool
+    {
+        var value:Bool = false;
+        GJApi.fetchTrophy(id, function(data:Map<String, String>)
+            {
+                trace(data);
+                if (data.get("achieved").toString() != "false")
+                    value = true;
+                trace(id+""+value);
+            });
+        return value;
+    }
 
-    //             trace(id+""+value);
+    public static function pullTrophy(?id:Int):Map<String,String>
+    {
+        var returnable:Map<String,String> = null;
+        GJApi.fetchTrophy(id, function(data:Map<String,String>){
+            trace(data);
+            returnable = data;
+        });
+        return returnable;
+    }
 
-    //         });
-    //     return value;
-    // }
-    // public static function fetchAllTrophies()
-    // {
-    //     new FlxTimer().start(0.05, function(tmr:FlxTimer){trophyArray=[];});
-    //     new FlxTimer().start(0.2, function(tmr:FlxTimer)
-    //         {GJApi.fetchTrophy(0, function(trophy:Map<String, String>)
-    //             {
-    //                 trophyArray.push(trophy.get('id').toString());
-    //             });
-    //         });
-    //     new FlxTimer().start(1, function(tmr:FlxTimer){trace(trophyArray.length); trace(trophyArray);});
-    // }
-    // public static function getScore(score:Float, songName:String, difficulty:String) /* Submit your high scores to a leaderboard! Wow, innovative! */
-    // {
-    //     var tableID:Int = getSongID(songName, difficulty);
-    //     GJApi.addScore(Std.string(score + " score - Achived on " + Date.now()), score, tableID);
-    // }
-    // public static function getProfileImage():BitmapData /* Gets the user's profile picture */
-    // {
-    //     var image;
-    //     GJApi.fetchAvatarImage(function(data:BitmapData){image = data;});
-    //     return image;
-    // }
-    public static function startSession() /*Starts the session */
+    /**
+     * Add a score to a table!
+     * @param score Score of the song. **Can only be an int value!**
+     * @param tableID ID of the table you want to add the score to!
+     * @param extraData (Optional) You could put accuracy or any other details here!
+     */
+    public static function addScore(score:Int, tableID:Int, ?extraData:String)
+    {
+        trace("Trying to add a score");
+        var formData:String = extraData.split(" ").join("%20");
+        GJApi.addScore(score+"%20Points", score, tableID, false, null, formData, function(data:Map<String, String>){
+            trace("Score submitted with a result of: " + data.get("success"));
+            Main.gjToastManager.createToast(Paths.getLibraryPath("images/stepmania-icon.png"), "Score submitted!", "Score: " + score + "\nExtra Data: "+extraData);
+        });
+    }
+
+    /**
+     * Return the highest score from a table!
+     * 
+     * Usable by pulling the data from the map by [function].get();
+     * 
+     * Values returned in the map: score, sort, user_id, user, extra_data, stored, guest, success
+     * 
+     * @param tableID The table you want to pull from
+     * @return Map<String,String>
+     */
+    public static function pullHighScore(tableID:Int):Map<String,String>
+    {
+        var returnable:Map<String,String>;
+        GJApi.fetchScore(tableID,1, function(data:Map<String,String>){
+            trace(data);
+            returnable = data;
+        });
+        return returnable;
+    }
+
+    /**
+     * Inline function to start the session. Shouldn't be used out of GameJoltAPI
+     * Starts the session
+     */
+    public static function startSession()
     {
         GJApi.openSession(function()
             {
@@ -203,23 +285,28 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
                 new FlxTimer().start(20, function(tmr:FlxTimer){pingSession();}, 0);
             });
     }
-    public static function pingSession() /* Pings GameJolt to show the session is still active */
+
+    /**
+     * Tells GameJolt that you are still active!
+     * Called every 20 seconds by a loop in startSession().
+     */
+    public static function pingSession()
     {
         GJApi.pingSession(true, function(){trace("Ping!");});
     }
-    public static function closeSession() /* Closes the session, used for signing out */
+
+    /**
+     * Closes the session, used for signing out
+     */
+    public static function closeSession()
     {
         GJApi.closeSession(function(){trace('Closed out the session');});
     }
-    // public static function getSongID(song:String, difficulty:String):Int
-    // {
-    //     return 0;
-    // }
 }
 
 class GameJoltInfo extends FlxSubState
 {
-    public static var version:String = "1.0.2 Public Beta";
+    public static var version:String = "1.1";
 }
 
 class GameJoltLogin extends MusicBeatSubstate
@@ -250,15 +337,16 @@ class GameJoltLogin extends MusicBeatSubstate
     static var trophyCheck:Bool = false;
     override function create()
     {
-//         if(!login)
-//             {
-//                 FlxG.sound.playMusic(Paths.music('freakyMenu'),0);
-//                 FlxG.sound.music.fadeIn(2, 0, 0.85);
-// 		Conductor.changeBPM(102);
-//             }
+        if(!login)
+            {
+                FlxG.sound.playMusic(Paths.music('freakyMenu'),0);
+                FlxG.sound.music.fadeIn(2, 0, 0.85);
+            }
 
-        trace("init? " + GJApi.initialized);
+        trace(GJApi.initialized);
         FlxG.mouse.visible = true;
+
+        Conductor.changeBPM(102);
 
         var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat', 'preload'));
 		bg.setGraphicSize(FlxG.width);
@@ -284,7 +372,7 @@ class GameJoltLogin extends MusicBeatSubstate
         gamejoltText.color = FlxColor.fromRGB(84,155,149);
         add(gamejoltText);
 
-        versionText = new FlxText(5, FlxG.height - 18, 0, "Game ID: " + GJKeys.id + " API: " + GameJoltInfo.version , 12);
+        versionText = new FlxText(5, FlxG.height - 18, 0, "Game ID: " + GJKeys.id + " API: " + GameJoltInfo.version + " Skill level: Pog" , 12);
         add(versionText);
 
         loginTexts = new FlxTypedGroup<FlxText>(2);
@@ -336,20 +424,22 @@ class GameJoltLogin extends MusicBeatSubstate
         });
         helpBox.color = FlxColor.fromRGB(84,155,149);
 
-        logOutBox = new FlxButton(0, 650, "Log Out & Restart", function()
+        logOutBox = new FlxButton(0, 650, "Log Out & Close", function()
         {
-            // GameJoltAPI.fetchAllTrophies();
-            // GameJoltAPI.deAuthDaUser();
+            // GameJoltAPI.checkTrophy(147704);
+            // GameJoltAPI.addScore(21, 652009, "Wahoo yahoo and yipee");
+            // GameJoltAPI.pullHighScore(652009);
+            // Main.toastManager.createToast(Paths.getLibraryPath("images/stepmania-icon.png"), "test title", "test description");
+            // GameJoltAPI.getTrophy(147704);
+            GameJoltAPI.deAuthDaUser();
         });
-        #if !windows
-        logOutBox.text = "Log Out & Close";
-        #end
         logOutBox.color = FlxColor.RED /*FlxColor.fromRGB(255,134,61)*/ ;
 
         cancelBox = new FlxButton(0,650, "Not Right Now", function()
         {
             FlxG.sound.play(Paths.sound('confirmMenu'), 0.7, false, null, true, function(){
-                FlxG.switchState(new MainMenuState());
+                FlxG.sound.music.stop();
+                FlxG.switchState(new GameSelectState());
             });
         });
 
@@ -379,29 +469,11 @@ class GameJoltLogin extends MusicBeatSubstate
             username.screenCenter(X);
             username.x += baseX;
             add(username);
-
-            // if (GameJoltGameData.trophyArray.length != 0)
-            // {
-            //     trophyText=new FlxText(0, 200, 0, "Loading...", 48);
-            //     trophyText.alignment = CENTER;
-            //     trophyText.screenCenter(X);
-            //     trophyText.x += baseX;
-            //     add(trophyText);
-            // }
         }
     }
 
     override function update(elapsed:Float)
     {
-        // if (GameJoltGameData.trophyArray.length != 0 && !trophyCheck)
-        // {
-        //     var value:Int = 0;
-        //     for (i in 0...GameJoltGameData.trophyArray.length)
-        //     {
-        //         new FlxTimer().start(0.8, function(tmr:FlxTimer){if (GameJoltAPI.isTropheyCollected(GameJoltGameData.trophyArray[i])){value ++; trophyText.text = "Trophies Collected:\n"+value+" out of "+GameJoltGameData.trophyArray.length ;}});
-        //     }
-        //     trophyCheck=true;
-        // }
         if (FlxG.sound.music != null)
             Conductor.songPosition = FlxG.sound.music.time;
 
@@ -413,7 +485,7 @@ class GameJoltLogin extends MusicBeatSubstate
         if (FlxG.keys.justPressed.ESCAPE)
         {
             FlxG.mouse.visible = false;
-            FlxG.switchState(new MainMenuState());
+            FlxG.switchState(new GameSelectState());
         }
 
         super.update(elapsed);
@@ -424,38 +496,6 @@ class GameJoltLogin extends MusicBeatSubstate
         super.beatHit();
         charBop.animation.play((GameJoltAPI.getStatus() ? "loggedin" : "idle"));
     }
-
-    public static function restart()
-    {
-        #if windows
-        var os = Sys.systemName();
-        var args = "Test.hx";
-        var app = "";
-        var workingdir = Sys.getCwd();
-
-        FlxG.log.add(app);
-
-        app = Sys.programPath();
-
-        // Launch application:
-        var result = systools.win.Tools.createProcess(app // app. path
-            , args // app. args
-            , workingdir // app. working directory
-            , false // do not hide the window
-            , false // do not wait for the application to terminate
-        );
-        // Show result:
-        if (result == 0)
-        {
-            FlxG.log.add('SUS');
-            System.exit(1337);
-        }
-        else
-            throw "Failed to restart";
-        #else
-        System.exit(0);
-        #end
-    }
     function openLink(url:String)
     {
         #if linux
@@ -463,5 +503,205 @@ class GameJoltLogin extends MusicBeatSubstate
         #else
         FlxG.openURL(url);
         #end
+    }
+}
+
+/* The toast things, pulled from Hololive Funkin
+* Thank you Firubii for the code for this!
+* https://twitter.com/firubiii
+* https://github.com/firubii
+* ILYSM
+*/
+
+class GJToastManager extends Sprite
+{
+    public static var ENTER_TIME:Float = 1.5;
+    public static var DISPLAY_TIME:Float = 3.0;
+    public static var LEAVE_TIME:Float = 1.0;
+    public static var TOTAL_TIME:Float = ENTER_TIME + DISPLAY_TIME + LEAVE_TIME;
+
+    var playTime:FlxTimer = new FlxTimer();
+
+    public function new()
+    {
+        super();
+        FlxG.signals.postStateSwitch.add(onStateSwitch);
+        FlxG.signals.gameResized.add(onWindowResized);
+    }
+
+    /**
+     * Create a toast!
+     * 
+     * Usage: **Main.gjToastManager.createToast(iconPath, title, description);**
+     * @param iconPath Path for the image **Paths.getLibraryPath("image/example.png")**
+     * @param title Title for the toast
+     * @param description Description for the toast
+     */
+    public function createToast(iconPath:String, title:String, description:String):Void
+    {
+        FlxG.sound.play(Paths.sound('confirmMenu')); 
+        
+        var toast = new Toast(iconPath, title, description);
+        addChild(toast);
+
+        playTime.start(TOTAL_TIME);
+        playToasts();
+    }
+
+    public function playToasts():Void
+    {
+        for (i in 0...numChildren)
+        {
+            var child = getChildAt(i);
+            FlxTween.cancelTweensOf(child);
+            FlxTween.tween(child, {y: (numChildren - 1 - i) * child.height}, ENTER_TIME, {ease: FlxEase.quadOut,
+                onComplete: function(tween:FlxTween)
+                {
+                    FlxTween.cancelTweensOf(child);
+                    FlxTween.tween(child, {y: (i + 1) * -child.height}, LEAVE_TIME, {ease: FlxEase.quadOut, startDelay: DISPLAY_TIME,
+                        onComplete: function(tween:FlxTween)
+                        {
+                            cast(child, Toast).removeChildren();
+                            removeChild(child);
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    public function collapseToasts():Void
+    {
+        for (i in 0...numChildren)
+        {
+            var child = getChildAt(i);
+            FlxTween.tween(child, {y: (i + 1) * -child.height}, LEAVE_TIME, {ease: FlxEase.quadOut,
+                onComplete: function(tween:FlxTween)
+                {
+                    cast(child, Toast).removeChildren();
+                    removeChild(child);
+                }
+            });
+        }
+    }
+
+    public function onStateSwitch():Void
+    {
+        if (!playTime.active)
+            return;
+
+        var elapsedSec = playTime.elapsedTime / 1000;
+        if (elapsedSec < ENTER_TIME)
+        {
+            for (i in 0...numChildren)
+            {
+                var child = getChildAt(i);
+                FlxTween.cancelTweensOf(child);
+                FlxTween.tween(child, {y: (numChildren - 1 - i) * child.height}, ENTER_TIME - elapsedSec, {ease: FlxEase.quadOut,
+                    onComplete: function(tween:FlxTween)
+                    {
+                        FlxTween.cancelTweensOf(child);
+                        FlxTween.tween(child, {y: (i + 1) * -child.height}, LEAVE_TIME, {ease: FlxEase.quadOut, startDelay: DISPLAY_TIME,
+                            onComplete: function(tween:FlxTween)
+                            {
+                                cast(child, Toast).removeChildren();
+                                removeChild(child);
+                            }
+                        });
+                    }
+                });
+            }
+        }
+        else if (elapsedSec < DISPLAY_TIME)
+        {
+            for (i in 0...numChildren)
+            {
+                var child = getChildAt(i);
+                FlxTween.cancelTweensOf(child);
+                FlxTween.tween(child, {y: (i + 1) * -child.height}, LEAVE_TIME, {ease: FlxEase.quadOut, startDelay: DISPLAY_TIME - (elapsedSec - ENTER_TIME),
+                    onComplete: function(tween:FlxTween)
+                    {
+                        cast(child, Toast).removeChildren();
+                        removeChild(child);
+                    }
+                });
+            }
+        }
+        else if (elapsedSec < LEAVE_TIME)
+        {
+            for (i in 0...numChildren)
+            {
+                var child = getChildAt(i);
+                FlxTween.tween(child, {y: (i + 1) * -child.height}, LEAVE_TIME -  (elapsedSec - ENTER_TIME - DISPLAY_TIME), {ease: FlxEase.quadOut,
+                    onComplete: function(tween:FlxTween)
+                    {
+                        cast(child, Toast).removeChildren();
+                        removeChild(child);
+                    }
+                });
+            }
+        }
+    }
+
+    public function onWindowResized(x:Int, y:Int):Void
+    {
+        for (i in 0...numChildren)
+        {
+            var child = getChildAt(i);
+            child.x = Lib.current.stage.stageWidth - child.width;
+        }
+    }
+}
+
+class Toast extends Sprite
+{
+    var back:Bitmap;
+    var icon:Bitmap;
+    var title:TextField;
+    var desc:TextField;
+
+    public function new(iconPath:String, titleText:String, description:String)
+    {
+        super();
+        back = new Bitmap(new BitmapData(500, 125, true, 0xFF000000));
+        back.alpha = 0.7;
+        back.x = 0;
+        back.y = 0;
+
+        icon = new Bitmap(BitmapData.fromFile(iconPath));
+        icon.x = 10;
+        icon.y = 10;
+
+        title = new TextField();
+        title.text = titleText;
+        title.setTextFormat(new TextFormat(openfl.utils.Assets.getFont("assets/fonts/vcr.ttf").fontName, 24, 0xFFFF00, true));
+        title.wordWrap = true;
+        title.width = 360;
+        title.x = 120;
+        title.y = 5;
+
+        desc = new TextField();
+        desc.text = description;
+        desc.setTextFormat(new TextFormat(openfl.utils.Assets.getFont("assets/fonts/vcr.ttf").fontName, 18, 0xFFFFFF));
+        desc.wordWrap = true;
+        desc.width = 360;
+        desc.height = 95;
+        desc.x = 120;
+        desc.y = 30;
+        if (titleText.length >= 25 || titleText.contains("\n"))
+        {   
+            desc.y += 25;
+            desc.height -= 25;
+        }
+
+        addChild(back);
+        addChild(icon);
+        addChild(title);
+        addChild(desc);
+
+        width = back.width;
+        height = back.height;
+        x = Lib.current.stage.stageWidth - width;
+        y = -height;
     }
 }
