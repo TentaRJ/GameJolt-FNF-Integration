@@ -102,6 +102,10 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
     static var userLogin:Bool = false;
 
     /**
+     * Inline variable to see if the user wants to submit scores.
+     */
+    public static var leaderboardToggle:Bool;
+    /**
      * Grabs user data and returns as a string, true for Username, false for Token
      * @param username Bool value
      * @return String 
@@ -128,14 +132,18 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
     public static function connect() 
     {
         trace("Grabbing API keys...");
-        GJApi.init(Std.int(GJKeys.id), Std.string(GJKeys.key), false);
+        GJApi.init(Std.int(GJKeys.id), Std.string(GJKeys.key), function(data:Bool){
+            #if debug
+            Main.gjToastManager.createToast(GJToastManager.imagePath, "Game " + (data ? "authenticated!" : "not authenticated..."), (!data ? "If you are a developer, check GJKeys.hx\nMake sure the id and key are formatted correctly!" : "Yay!"), false);
+            #end
+        });
     }
 
     /**
      * Inline function to auth the user. Shouldn't be used outside of GameJoltAPI things.
      * @param in1 username
      * @param in2 token
-     * @return Logs the user in
+     * @param loginArg Used in only GameJoltLogin
      */
     public static function authDaUser(in1, in2, ?loginArg:Bool = false)
     {
@@ -147,13 +155,13 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
                 trace("token:"+in2);
                 if(v)
                     {
+                        Main.gjToastManager.createToast(GJToastManager.imagePath, in1 + " signed in!", "Time: " + Date.now() + "\nGame ID: " + GJKeys.id + "\nScore Submitting: " + (GameJoltAPI.leaderboardToggle? "Enabled" : "Disabled"), false);
                         trace("User authenticated!");
                         FlxG.save.data.gjUser = in1;
                         FlxG.save.data.gjToken = in2;
                         FlxG.save.flush();
                         userLogin = true;
                         startSession();
-                        FlxG.sound.play(Paths.sound('confirmMenu'));
                         if(loginArg)
                         {
                             GameJoltLogin.login=true;
@@ -167,6 +175,7 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
                             GameJoltLogin.login=true;
                             FlxG.switchState(new GameJoltLogin());
                         }
+                        Main.gjToastManager.createToast(GJToastManager.imagePath, "Not signed in!\nSign in to save GameJolt Trophies and Leaderboard Scores!", "", false);
                         trace("User login failure!");
                         // FlxG.switchState(new GameJoltLogin());
                     }
@@ -204,7 +213,7 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
                 var bool:Bool = false;
                 if (data.exists("message"))
                     bool = true;
-                Main.gjToastManager.createToast(Paths.getLibraryPath("images/stepmania-icon.png"), "Unlocked a new trophy"+(bool ? "... again?" : "!"), "Check GameJolt to see your new trophy!");
+                Main.gjToastManager.createToast(GJToastManager.imagePath, "Unlocked a new trophy"+(bool ? "... again?" : "!"), "Thank you for testing this out!\nCheck out Vs. King, it's cool", true);
             });
         }
     }
@@ -245,12 +254,19 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
      */
     public static function addScore(score:Int, tableID:Int, ?extraData:String)
     {
-        trace("Trying to add a score");
-        var formData:String = extraData.split(" ").join("%20");
-        GJApi.addScore(score+"%20Points", score, tableID, false, null, formData, function(data:Map<String, String>){
-            trace("Score submitted with a result of: " + data.get("success"));
-            Main.gjToastManager.createToast(Paths.getLibraryPath("images/stepmania-icon.png"), "Score submitted!", "Score: " + score + "\nExtra Data: "+extraData);
-        });
+        if (GameJoltAPI.leaderboardToggle)
+        {
+            trace("Trying to add a score");
+            var formData:String = extraData.split(" ").join("%20");
+            GJApi.addScore(score+"%20Points", score, tableID, false, null, formData, function(data:Map<String, String>){
+                trace("Score submitted with a result of: " + data.get("success"));
+                Main.gjToastManager.createToast(GJToastManager.imagePath, "Score submitted!", "Score: " + score + "\nExtra Data: "+extraData, true);
+            });
+        }
+        else
+        {
+            Main.gjToastManager.createToast(GJToastManager.imagePath, "Score not submitted!", "Score: " + score + "Extra Data: " +extraData+"\nScore was not submitted due to score submitting being disabled!", true);
+        }
     }
 
     /**
@@ -307,6 +323,22 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
 class GameJoltInfo extends FlxSubState
 {
     public static var version:String = "1.1";
+    public static var textArray:Array<String> = [
+        "I should probably push my commits...",
+        "Where is my apple cider?",
+        "Mario be like wahoo!",
+        "[Funny IP address joke]",
+        "I love Camellia mod",
+        "I forgot to remove the IP grabber...",
+        "Play Post Mortem Mixup",
+        "*Spontaniously combusts*",
+        "Holofunk is awesome",
+        "What you know about rollin down in the deep",
+        "This isn't an NFT. Crazy right?",
+        "ERROR: Null Object Reference",
+        "Thank you BrightFyre for your help :)",
+        "Thank you Firubii for the notification code :)"
+    ];
 }
 
 class GameJoltLogin extends MusicBeatSubstate
@@ -337,6 +369,11 @@ class GameJoltLogin extends MusicBeatSubstate
     static var trophyCheck:Bool = false;
     override function create()
     {
+        if (FlxG.save.data.lbToggle != null)
+            {
+                GameJoltAPI.leaderboardToggle = FlxG.save.data.lbtoggle;
+            }
+
         if(!login)
             {
                 FlxG.sound.playMusic(Paths.music('freakyMenu'),0);
@@ -366,13 +403,13 @@ class GameJoltLogin extends MusicBeatSubstate
         charBop.flipX = false;
 		add(charBop);
 
-        gamejoltText = new FlxText(0, 25, 0, "GameJolt Integration", 16);
+        gamejoltText = new FlxText(0, 25, 0, "GameJolt Integration\n" + Date.now(), 16);
         gamejoltText.screenCenter(X);
         gamejoltText.x += baseX;
         gamejoltText.color = FlxColor.fromRGB(84,155,149);
         add(gamejoltText);
 
-        versionText = new FlxText(5, FlxG.height - 18, 0, "Game ID: " + GJKeys.id + " API: " + GameJoltInfo.version + " Skill level: Pog" , 12);
+        versionText = new FlxText(5, FlxG.height - 36, 0, GameJoltInfo.textArray[FlxG.random.int(0, GameJoltInfo.textArray.length)]+ " -TentaRJ\nGame ID: " + GJKeys.id + " API: " + GameJoltInfo.version, 12);
         add(versionText);
 
         loginTexts = new FlxTypedGroup<FlxText>(2);
@@ -380,7 +417,7 @@ class GameJoltLogin extends MusicBeatSubstate
 
         usernameText = new FlxText(0, 125, 300, "Username:", 30);
 
-        tokenText = new FlxText(0, 225, 300, "Token:", 30);
+        tokenText = new FlxText(0, 225, 300, "Token: (Not your password)", 30);
 
         loginTexts.add(usernameText);
         loginTexts.add(tokenText);
@@ -411,7 +448,7 @@ class GameJoltLogin extends MusicBeatSubstate
         loginButtons = new FlxTypedGroup<FlxButton>(3);
         add(loginButtons);
 
-        signInBox = new FlxButton(0, 450, "Sign In", function()
+        signInBox = new FlxButton(0, 475, "Sign In", function()
         {
             trace(usernameBox.text);
             trace(tokenBox.text);
@@ -420,24 +457,28 @@ class GameJoltLogin extends MusicBeatSubstate
 
         helpBox = new FlxButton(0, 550, "GameJolt Token", function()
         {
-            openLink('https://www.youtube.com/watch?v=T5-x7kAGGnE');
+            if (!GameJoltAPI.getStatus())openLink('https://www.youtube.com/watch?v=T5-x7kAGGnE');
+            else
+                {
+                    GameJoltAPI.leaderboardToggle = !GameJoltAPI.leaderboardToggle;
+                    trace(GameJoltAPI.leaderboardToggle);
+                    FlxG.save.data.lbToggle = GameJoltAPI.leaderboardToggle;
+                    Main.gjToastManager.createToast(GJToastManager.imagePath, "Score Submitting", "Score submitting is now " + (GameJoltAPI.leaderboardToggle ? "Enabled":"Disabled"), false);
+                }
         });
         helpBox.color = FlxColor.fromRGB(84,155,149);
 
-        logOutBox = new FlxButton(0, 650, "Log Out & Close", function()
+        logOutBox = new FlxButton(0, 625, "Log Out & Close", function()
         {
-            // GameJoltAPI.checkTrophy(147704);
-            // GameJoltAPI.addScore(21, 652009, "Wahoo yahoo and yipee");
-            // GameJoltAPI.pullHighScore(652009);
-            // Main.toastManager.createToast(Paths.getLibraryPath("images/stepmania-icon.png"), "test title", "test description");
-            // GameJoltAPI.getTrophy(147704);
             GameJoltAPI.deAuthDaUser();
         });
         logOutBox.color = FlxColor.RED /*FlxColor.fromRGB(255,134,61)*/ ;
 
-        cancelBox = new FlxButton(0,650, "Not Right Now", function()
+        cancelBox = new FlxButton(0,625, "Not Right Now", function()
         {
+            FlxG.save.flush();
             FlxG.sound.play(Paths.sound('confirmMenu'), 0.7, false, null, true, function(){
+                FlxG.save.flush();
                 FlxG.sound.music.stop();
                 FlxG.switchState(new GameSelectState());
             });
@@ -446,14 +487,14 @@ class GameJoltLogin extends MusicBeatSubstate
         if(!GameJoltAPI.getStatus())
         {
             loginButtons.add(signInBox);
-            loginButtons.add(helpBox);
         }
         else
         {
-            cancelBox.y = 550;
+            cancelBox.y = 475;
             cancelBox.text = "Continue";
             loginButtons.add(logOutBox);
         }
+        loginButtons.add(helpBox);
         loginButtons.add(cancelBox);
 
         loginButtons.forEach(function(item:FlxButton){
@@ -474,6 +515,18 @@ class GameJoltLogin extends MusicBeatSubstate
 
     override function update(elapsed:Float)
     {
+        if (FlxG.save.data.lbToggle == null)
+        {
+            FlxG.save.data.lbToggle = false;
+            FlxG.save.flush();
+        }
+
+        if (GameJoltAPI.getStatus())
+        {
+            helpBox.text = "Leaderboards:\n" + (GameJoltAPI.leaderboardToggle ? "Enabled" : "Disabled");
+            helpBox.color = (GameJoltAPI.leaderboardToggle ? FlxColor.GREEN : FlxColor.RED);
+        }
+
         if (FlxG.sound.music != null)
             Conductor.songPosition = FlxG.sound.music.time;
 
@@ -484,6 +537,7 @@ class GameJoltLogin extends MusicBeatSubstate
 
         if (FlxG.keys.justPressed.ESCAPE)
         {
+            FlxG.save.flush();
             FlxG.mouse.visible = false;
             FlxG.switchState(new GameSelectState());
         }
@@ -515,9 +569,11 @@ class GameJoltLogin extends MusicBeatSubstate
 
 class GJToastManager extends Sprite
 {
-    public static var ENTER_TIME:Float = 1.5;
+    public static var imagePath:String = Paths.getLibraryPath("images/stepmania-icon.png");
+
+    public static var ENTER_TIME:Float = 0.5;
     public static var DISPLAY_TIME:Float = 3.0;
-    public static var LEAVE_TIME:Float = 1.0;
+    public static var LEAVE_TIME:Float = 0.5;
     public static var TOTAL_TIME:Float = ENTER_TIME + DISPLAY_TIME + LEAVE_TIME;
 
     var playTime:FlxTimer = new FlxTimer();
@@ -536,10 +592,11 @@ class GJToastManager extends Sprite
      * @param iconPath Path for the image **Paths.getLibraryPath("image/example.png")**
      * @param title Title for the toast
      * @param description Description for the toast
+     * @param sound Want to have an alert sound? Set this to **true**! Defaults to **false**.
      */
-    public function createToast(iconPath:String, title:String, description:String):Void
+    public function createToast(iconPath:String, title:String, description:String, ?sound:Bool = false):Void
     {
-        FlxG.sound.play(Paths.sound('confirmMenu')); 
+        if (sound)FlxG.sound.play(Paths.sound('confirmMenu')); 
         
         var toast = new Toast(iconPath, title, description);
         addChild(toast);

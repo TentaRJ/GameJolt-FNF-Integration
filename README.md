@@ -12,8 +12,6 @@
 
 ### -tenta
 
-#### **Repo last updated SEPT.7.2021 Version 1.0.2 Public Beta**
-
 # PLANS:
 
 ### <a href="https://github.com/TentaRJ/GameJolt-FNF-Integration/projects/1">Github Project link</a>
