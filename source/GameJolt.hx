@@ -415,9 +415,9 @@ class GameJoltLogin extends MusicBeatSubstate
         loginTexts = new FlxTypedGroup<FlxText>(2);
         add(loginTexts);
 
-        usernameText = new FlxText(0, 125, 300, "Username:", 30);
+        usernameText = new FlxText(0, 125, 300, "Username:", 20);
 
-        tokenText = new FlxText(0, 225, 300, "Token: (Not your password)", 30);
+        tokenText = new FlxText(0, 225, 300, "Token: (Not PW)", 20);
 
         loginTexts.add(usernameText);
         loginTexts.add(tokenText);
