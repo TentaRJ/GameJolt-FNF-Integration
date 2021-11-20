@@ -134,7 +134,7 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
         trace("Grabbing API keys...");
         GJApi.init(Std.int(GJKeys.id), Std.string(GJKeys.key), function(data:Bool){
             #if debug
-            Main.gjToastManager.createToast(GJToastManager.imagePath, "Game " + (data ? "authenticated!" : "not authenticated..."), (!data ? "If you are a developer, check GJKeys.hx\nMake sure the id and key are formatted correctly!" : "Yay!"), false);
+            Main.gjToastManager.createToast(GameJoltInfo.imagePath, "Game " + (data ? "authenticated!" : "not authenticated..."), (!data ? "If you are a developer, check GJKeys.hx\nMake sure the id and key are formatted correctly!" : "Yay!"), false);
             #end
         });
     }
@@ -155,7 +155,7 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
                 trace("token:"+in2);
                 if(v)
                     {
-                        Main.gjToastManager.createToast(GJToastManager.imagePath, in1 + " signed in!", "Time: " + Date.now() + "\nGame ID: " + GJKeys.id + "\nScore Submitting: " + (GameJoltAPI.leaderboardToggle? "Enabled" : "Disabled"), false);
+                        Main.gjToastManager.createToast(GameJoltInfo.imagePath, in1 + " signed in!", "Time: " + Date.now() + "\nGame ID: " + GJKeys.id + "\nScore Submitting: " + (GameJoltAPI.leaderboardToggle? "Enabled" : "Disabled"), false);
                         trace("User authenticated!");
                         FlxG.save.data.gjUser = in1;
                         FlxG.save.data.gjToken = in2;
@@ -175,7 +175,7 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
                             GameJoltLogin.login=true;
                             FlxG.switchState(new GameJoltLogin());
                         }
-                        Main.gjToastManager.createToast(GJToastManager.imagePath, "Not signed in!\nSign in to save GameJolt Trophies and Leaderboard Scores!", "", false);
+                        Main.gjToastManager.createToast(GameJoltInfo.imagePath, "Not signed in!\nSign in to save GameJolt Trophies and Leaderboard Scores!", "", false);
                         trace("User login failure!");
                         // FlxG.switchState(new GameJoltLogin());
                     }
@@ -213,7 +213,7 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
                 var bool:Bool = false;
                 if (data.exists("message"))
                     bool = true;
-                Main.gjToastManager.createToast(GJToastManager.imagePath, "Unlocked a new trophy"+(bool ? "... again?" : "!"), "Thank you for testing this out!\nCheck out Vs. King, it's cool", true);
+                Main.gjToastManager.createToast(GameJoltInfo.imagePath, "Unlocked a new trophy"+(bool ? "... again?" : "!"), "Thank you for testing this out!\nCheck out Vs. King, it's cool", true);
             });
         }
     }
@@ -260,12 +260,12 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
             var formData:String = extraData.split(" ").join("%20");
             GJApi.addScore(score+"%20Points", score, tableID, false, null, formData, function(data:Map<String, String>){
                 trace("Score submitted with a result of: " + data.get("success"));
-                Main.gjToastManager.createToast(GJToastManager.imagePath, "Score submitted!", "Score: " + score + "\nExtra Data: "+extraData, true);
+                Main.gjToastManager.createToast(GameJoltInfo.imagePath, "Score submitted!", "Score: " + score + "\nExtra Data: "+extraData, true);
             });
         }
         else
         {
-            Main.gjToastManager.createToast(GJToastManager.imagePath, "Score not submitted!", "Score: " + score + "Extra Data: " +extraData+"\nScore was not submitted due to score submitting being disabled!", true);
+            Main.gjToastManager.createToast(GameJoltInfo.imagePath, "Score not submitted!", "Score: " + score + "Extra Data: " +extraData+"\nScore was not submitted due to score submitting being disabled!", true);
         }
     }
 
@@ -321,8 +321,35 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
 }
 
 class GameJoltInfo extends FlxSubState
-{
+{    
+    /**
+    * Inline variable to change the font for the GameJolt API elements.
+    * @param font You can change the font by doing **Paths.font([Name of your font file])** or by listing your file path.
+    * If *null*, will default to the normal font.
+    */
+    public static var font:String = null; /* Example: Paths.font("vcr.ttf"); */
+    /**
+    * Inline variable to change the font for the notifications made by Firubii.
+    * 
+    * Don't make it a NULL variable. Worst mistake of my life.
+    */
+    public static var fontPath:String = "assets/fonts/vcr.ttf";
+    /**
+    * Image to show for notifications. Leave NULL for no image, it's all good :)
+    * 
+    * Example: Paths.getLibraryPath("images/stepmania-icon.png")
+    */
+    public static var imagePath:String = null; 
+
+    /* Other things that shouldn't be messed with are below this line! */
+
+    /**
+    * GameJolt + FNF version.
+    */
     public static var version:String = "1.1";
+    /**
+     * Random quotes I got from other people. Nothing more, nothing less. Just for funny.
+     */
     public static var textArray:Array<String> = [
         "I should probably push my commits...",
         "Where is my apple cider?",
@@ -335,7 +362,7 @@ class GameJoltInfo extends FlxSubState
         "Holofunk is awesome",
         "What you know about rollin down in the deep",
         "This isn't an NFT. Crazy right?",
-        "ERROR: Null Object Reference",
+        "no not the null reference :(",
         "Thank you BrightFyre for your help :)",
         "Thank you Firubii for the notification code :)"
     ];
@@ -343,7 +370,8 @@ class GameJoltInfo extends FlxSubState
 
 class GameJoltLogin extends MusicBeatSubstate
 {
-    var gamejoltText:FlxText;
+    var gamejoltText1:FlxText;
+    var gamejoltText2:FlxText;
     var loginTexts:FlxTypedGroup<FlxText>;
     var loginBoxes:FlxTypedGroup<FlxUIInputText>;
     var loginButtons:FlxTypedGroup<FlxButton>;
@@ -355,23 +383,25 @@ class GameJoltLogin extends MusicBeatSubstate
     var helpBox:FlxButton;
     var logOutBox:FlxButton;
     var cancelBox:FlxButton;
-    var profileIcon:FlxSprite;
-    var username:FlxText;
-    var gamename:FlxText;
-    var trophy:FlxBar;
-    var trophyText:FlxText;
-    var missTrophyText:FlxText;
+    // var profileIcon:FlxSprite;
+    var username1:FlxText;
+    var username2:FlxText;
+    // var gamename:FlxText;
+    // var trophy:FlxBar;
+    // var trophyText:FlxText;
+    // var missTrophyText:FlxText;
     public static var charBop:FlxSprite;
-    var icon:FlxSprite;
-    var baseX:Int = -320;
+    // var icon:FlxSprite;
+    var baseX:Int = -190;
     var versionText:FlxText;
+    var funnyText:FlxText;
     public static var login:Bool = false;
-    static var trophyCheck:Bool = false;
+    // static var trophyCheck:Bool = false;
     override function create()
     {
         if (FlxG.save.data.lbToggle != null)
             {
-                GameJoltAPI.leaderboardToggle = FlxG.save.data.lbtoggle;
+                GameJoltAPI.leaderboardToggle = FlxG.save.data.lbToggle;
             }
 
         if(!login)
@@ -403,13 +433,22 @@ class GameJoltLogin extends MusicBeatSubstate
         charBop.flipX = false;
 		add(charBop);
 
-        gamejoltText = new FlxText(0, 25, 0, "GameJolt Integration\n" + Date.now(), 16);
-        gamejoltText.screenCenter(X);
-        gamejoltText.x += baseX;
-        gamejoltText.color = FlxColor.fromRGB(84,155,149);
-        add(gamejoltText);
+        gamejoltText1 = new FlxText(0, 25, 0, "GameJolt + FNF Integration", 16);
+        gamejoltText1.screenCenter(X);
+        gamejoltText1.x += baseX;
+        gamejoltText1.color = FlxColor.fromRGB(84,155,149);
+        add(gamejoltText1);
 
-        versionText = new FlxText(5, FlxG.height - 36, 0, GameJoltInfo.textArray[FlxG.random.int(0, GameJoltInfo.textArray.length)]+ " -TentaRJ\nGame ID: " + GJKeys.id + " API: " + GameJoltInfo.version, 12);
+        gamejoltText2 = new FlxText(0, 45, 0, Date.now().toString(), 16);
+        gamejoltText2.screenCenter(X);
+        gamejoltText2.x += baseX;
+        gamejoltText2.color = FlxColor.fromRGB(84,155,149);
+        add(gamejoltText2);
+
+        funnyText = new FlxText(5, FlxG.height - 40, 0, GameJoltInfo.textArray[FlxG.random.int(0, GameJoltInfo.textArray.length - 1)]+ " -Tenta", 12);
+        add(funnyText);
+
+        versionText = new FlxText(5, FlxG.height - 22, 0, "Game ID: " + GJKeys.id + " API: " + GameJoltInfo.version, 12);
         add(versionText);
 
         loginTexts = new FlxTypedGroup<FlxText>(2);
@@ -424,6 +463,7 @@ class GameJoltLogin extends MusicBeatSubstate
         loginTexts.forEach(function(item:FlxText){
             item.screenCenter(X);
             item.x += baseX;
+            item.font = GameJoltInfo.font;
         });
 
         loginBoxes = new FlxTypedGroup<FlxUIInputText>(2);
@@ -437,6 +477,7 @@ class GameJoltLogin extends MusicBeatSubstate
         loginBoxes.forEach(function(item:FlxUIInputText){
             item.screenCenter(X);
             item.x += baseX;
+            item.font = GameJoltInfo.font;
         });
 
         if(GameJoltAPI.getStatus())
@@ -463,7 +504,7 @@ class GameJoltLogin extends MusicBeatSubstate
                     GameJoltAPI.leaderboardToggle = !GameJoltAPI.leaderboardToggle;
                     trace(GameJoltAPI.leaderboardToggle);
                     FlxG.save.data.lbToggle = GameJoltAPI.leaderboardToggle;
-                    Main.gjToastManager.createToast(GJToastManager.imagePath, "Score Submitting", "Score submitting is now " + (GameJoltAPI.leaderboardToggle ? "Enabled":"Disabled"), false);
+                    Main.gjToastManager.createToast(GameJoltInfo.imagePath, "Score Submitting", "Score submitting is now " + (GameJoltAPI.leaderboardToggle ? "Enabled":"Disabled"), false);
                 }
         });
         helpBox.color = FlxColor.fromRGB(84,155,149);
@@ -505,16 +546,41 @@ class GameJoltLogin extends MusicBeatSubstate
 
         if(GameJoltAPI.getStatus())
         {
-            username = new FlxText(0, 75, 0, "Signed in as:\n" + GameJoltAPI.getUserInfo(true), 40);
-            username.alignment = CENTER;
-            username.screenCenter(X);
-            username.x += baseX;
-            add(username);
+            username1 = new FlxText(0, 95, 0, "Signed in as:", 40);
+            username1.alignment = CENTER;
+            username1.screenCenter(X);
+            username1.x += baseX;
+            add(username1);
+
+            username2 = new FlxText(0, 145, 0, "" + GameJoltAPI.getUserInfo(true) + "", 40);
+            username2.alignment = CENTER;
+            username2.screenCenter(X);
+            username2.x += baseX;
+            add(username2);
+        }
+
+        if(GameJoltInfo.font != null)
+        {       
+            // Stupid block of code >:(
+            gamejoltText1.font = GameJoltInfo.font;
+            gamejoltText2.font = GameJoltInfo.font;
+            funnyText.font = GameJoltInfo.font;
+            versionText.font = GameJoltInfo.font;
+            username1.font = GameJoltInfo.font;
+            username2.font = GameJoltInfo.font;
+            loginBoxes.forEach(function(item:FlxUIInputText){
+                item.font = GameJoltInfo.font;
+            });
+            loginTexts.forEach(function(item:FlxText){
+                item.font = GameJoltInfo.font;
+            });
         }
     }
 
     override function update(elapsed:Float)
     {
+        gamejoltText2.text = Date.now().toString();
+
         if (FlxG.save.data.lbToggle == null)
         {
             FlxG.save.data.lbToggle = false;
@@ -569,8 +635,6 @@ class GameJoltLogin extends MusicBeatSubstate
 
 class GJToastManager extends Sprite
 {
-    public static var imagePath:String = Paths.getLibraryPath("images/stepmania-icon.png");
-
     public static var ENTER_TIME:Float = 0.5;
     public static var DISPLAY_TIME:Float = 3.0;
     public static var LEAVE_TIME:Float = 0.5;
@@ -721,29 +785,34 @@ class Toast extends Sprite
     {
         super();
         back = new Bitmap(new BitmapData(500, 125, true, 0xFF000000));
-        back.alpha = 0.7;
+        back.alpha = 0.9;
         back.x = 0;
         back.y = 0;
 
-        icon = new Bitmap(BitmapData.fromFile(iconPath));
-        icon.x = 10;
-        icon.y = 10;
+        if(iconPath != null)
+        {
+            icon = new Bitmap(BitmapData.fromFile(iconPath));
+            icon.x = 10;
+            icon.y = 10;
+        }
 
         title = new TextField();
         title.text = titleText;
-        title.setTextFormat(new TextFormat(openfl.utils.Assets.getFont("assets/fonts/vcr.ttf").fontName, 24, 0xFFFF00, true));
+        title.setTextFormat(new TextFormat(openfl.utils.Assets.getFont(GameJoltInfo.fontPath).fontName, 24, 0xFFFF00, true));
         title.wordWrap = true;
         title.width = 360;
-        title.x = 120;
+        if(iconPath!=null){title.x = 120;}
+        else{title.x = 5;}
         title.y = 5;
 
         desc = new TextField();
         desc.text = description;
-        desc.setTextFormat(new TextFormat(openfl.utils.Assets.getFont("assets/fonts/vcr.ttf").fontName, 18, 0xFFFFFF));
+        desc.setTextFormat(new TextFormat(openfl.utils.Assets.getFont(GameJoltInfo.fontPath).fontName, 18, 0xFFFFFF));
         desc.wordWrap = true;
         desc.width = 360;
         desc.height = 95;
-        desc.x = 120;
+        if(iconPath!=null){desc.x = 120;}
+        else{desc.x = 5;}
         desc.y = 30;
         if (titleText.length >= 25 || titleText.contains("\n"))
         {   
@@ -752,7 +821,7 @@ class Toast extends Sprite
         }
 
         addChild(back);
-        addChild(icon);
+        if(iconPath!=null){addChild(icon);}
         addChild(title);
         addChild(desc);
 

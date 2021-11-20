@@ -1,14 +1,10 @@
 # GameJolt FNF Integration
 
-## This project is designed to be used with **Friday Night Funkin Mods**. This allows you to add trohies in your GameJolt gamepage and award them to the user.
+## This project is designed to be used with **Friday Night Funkin**. This allows you to add trohies in your GameJolt gamepage and award them to the user along with adding scores to leaderboard tables!
 
 ### Included in the repo is the API to add trophies and the state (GameJoltLogin) to sign the user in.
 
-### Programmed using Kade Engine 1.6.1. Support for other engines are limited, as I have not tested other engines with this integration.
-
 ### Have any issues? Report them to the repo via <a href="https://github.com/TentaRJ/GameJolt-FNF-Integration/issues">Github Issues</a>!
-
-### Thanks for reading this! Hope this all helps!
 
 ### -tenta
 
@@ -32,9 +28,9 @@ haxelib run lime rebuild systools [windows, mac, linux]
 If you are going to be releasing the source code of a mod with this integration, you need to place a few things into `Project.xml`.
 ### Place these into `Project.xml`:
 ```xml
-    	<haxelib name="tentools" />
-	<haxelib name="systools" />
-	<ndll name="systools" haxelib="systools" />
+<haxelib name="tentools" />
+<haxelib name="systools" />
+<ndll name="systools" haxelib="systools" />
 ```
 
 ### Once that is all done, you can place `GameJolt.hx` into the `source/` folder of your project!
@@ -104,6 +100,17 @@ GameJoltAPI.authDaUser(FlxG.save.data.gjUser, FlxG.save.data.gjToken);
 ```hx
 FlxG.switchState(new GameJoltLogin());
 ```
+
+# CHANGABLE VARIABLES:
+
+`GameJoltInfo.font:String`
+> The font used in GameJoltLogin
+
+`GameJoltInfo.fontPath:String`
+> The font path used for the notifications
+
+`GameJoltInfo.imagePath:String`
+> The file path for the image in the notifications.
 
 # COMMANDS AVAILABLE:
 
