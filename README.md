@@ -64,7 +64,7 @@ Inside the Main class (Main.hx), you need to make a new variable called toastMan
 
 `Main.hx`
 ```haxe
-public static var gjToastManager.GJToastManager;
+public static var gjToastManager:GJToastManager;
 ```
 
 Inside the setupGame function in the Main class, you will need to create the toastManager.
@@ -102,6 +102,9 @@ FlxG.switchState(new GameJoltLogin());
 ```
 
 # CHANGABLE VARIABLES:
+
+`GameJoltInfo.changeState:FlxUIState`
+> The state you will call back to after hitting ESCAPE or CONTINUE
 
 `GameJoltInfo.font:String`
 > The font used in GameJoltLogin

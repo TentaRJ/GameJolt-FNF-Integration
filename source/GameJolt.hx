@@ -65,6 +65,7 @@ Hope this helps! -tenta
 package;
 
 // GameJolt things
+import flixel.addons.ui.FlxUIState;
 import haxe.iterators.StringIterator;
 import tentools.api.FlxGameJolt as GJApi;
 
@@ -323,6 +324,10 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
 class GameJoltInfo extends FlxSubState
 {    
     /**
+     * Variable to change which state to go to by hitting ESCAPE or the CONTINUE buttons.
+     */
+    public static var changeState:FlxUIState = new MainMenuState();
+    /**
     * Inline variable to change the font for the GameJolt API elements.
     * @param font You can change the font by doing **Paths.font([Name of your font file])** or by listing your file path.
     * If *null*, will default to the normal font.
@@ -521,7 +526,7 @@ class GameJoltLogin extends MusicBeatSubstate
             FlxG.sound.play(Paths.sound('confirmMenu'), 0.7, false, null, true, function(){
                 FlxG.save.flush();
                 FlxG.sound.music.stop();
-                FlxG.switchState(new GameSelectState());
+                FlxG.switchState(GameJoltInfo.changeState);
             });
         });
 
@@ -605,7 +610,7 @@ class GameJoltLogin extends MusicBeatSubstate
         {
             FlxG.save.flush();
             FlxG.mouse.visible = false;
-            FlxG.switchState(new GameSelectState());
+            FlxG.switchState(GameJoltInfo.changeState);
         }
 
         super.update(elapsed);
