@@ -37,7 +37,7 @@ If you are going to be releasing the source code of a mod with this integration,
 
 # SETUP (GAMEJOLT):
 
-Make sure to add `inport GameJolt;` at the top of `main.hx`!
+Make sure to add `import GameJolt;` at the top of `main.hx`!
 
 To add your game's keys, you will need to make a file in the source folder named GJKeys.hx (filepath: ../source/GJKeys.hx).
 <br>
