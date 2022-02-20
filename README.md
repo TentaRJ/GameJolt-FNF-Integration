@@ -120,7 +120,7 @@ FlxG.switchState(new GameJoltLogin());
 
 # COMMANDS AVAILABLE:
 
-`GameJoltAPI.checkStatus():Bool`
+`GameJoltAPI.getStatus():Bool`
 > Checking to see if the user has signed in. Returns a `bool` value. `true` if signed in, `false` if not signed in.
 
 `GameJoltAPI.getuserInfo(username):String`
