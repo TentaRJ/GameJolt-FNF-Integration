@@ -9,6 +9,6 @@ class TitleState extends MusicBeatState
 	{
 		//gamejolt start shit
 		GameJoltAPI.connect();
-        GameJoltAPI.authDaUser(FlxG.save.data.gjUser, FlxG.save.data.gjToken);
+                GameJoltAPI.authDaUser(FlxG.save.data.gjUser, FlxG.save.data.gjToken);
 	}	
 }
