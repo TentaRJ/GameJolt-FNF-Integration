@@ -10,5 +10,7 @@ class TitleState extends MusicBeatState
 		//gamejolt start shit
 		GameJoltAPI.connect();
                 GameJoltAPI.authDaUser(FlxG.save.data.gjUser, FlxG.save.data.gjToken);
+		
+		//AGAIN obviously ur code won't look like this but this shit needs to be here.
 	}	
 }
