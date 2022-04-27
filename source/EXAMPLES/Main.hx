@@ -6,7 +6,7 @@ class Main extends Sprite
 {
 	public static var gjToastManager:GJToastManager; //this is needed for the child
 
-	//obviously your original code wont't look like this but u need u add these where they currently are.
+	//obviously your original code wont't look like this but u need to add these where they currently are.
 	
 	private function setupGame():Void
 	{
