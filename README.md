@@ -33,7 +33,7 @@ If you are going to be releasing the source code of a mod with this integration,
 <ndll name="systools" haxelib="systools" />
 ```
 
-###Important : Make sure Flixel is up to date. (4.11.0)
+### Important : Make sure Flixel is up to date. (4.11.0)
 Without Flixel as 4.11.0 and up, Toasts Will Not Appear. The Achievement Still Gives Or Something, Just No Notification.
 
 ### Once that is all done, you can place `GameJolt.hx` into the `source/` folder of your project!
