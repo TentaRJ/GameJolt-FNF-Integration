@@ -796,7 +796,7 @@ class Toast extends Sprite
 
         if(iconPath != null)
         {
-            icon = new Bitmap(BitmapData.fromFile(iconPath));
+            icon = new Bitmap(openfl.utils.Assets.getBitmapData(iconPath));
 	    icon.width = 100;
             icon.height = 100;
             icon.x = 10;
