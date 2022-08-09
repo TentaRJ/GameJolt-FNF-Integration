@@ -104,6 +104,13 @@ GameJoltAPI.authDaUser(FlxG.save.data.gjUser, FlxG.save.data.gjToken);
 FlxG.switchState(new GameJoltLogin());
 ```
 
+# PSYCH ENGINE SUPPORT STEP's
+
+### 1.Install Tentools, Systools and rebuild systools
+### 2.Setup GameJolt
+### 3.Put the thing's on ```Main.hx``` and ```TitleState.hx```
+### as easy as that
+
 # CHANGABLE VARIABLES:
 
 `GameJoltInfo.changeState:FlxUIState`
