@@ -111,6 +111,9 @@ FlxG.switchState(new GameJoltLogin());
 ### 3.Put the thing's on ```Main.hx``` and ```TitleState.hx```
 ### as easy as that
 
+# PD:
+### you should have internet connection for login, just that
+
 # CHANGABLE VARIABLES:
 
 `GameJoltInfo.changeState:FlxUIState`
