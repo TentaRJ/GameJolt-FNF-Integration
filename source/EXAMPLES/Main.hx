@@ -1,16 +1,100 @@
 package;
 
-import GameJolt; //this is important
+import GameJolt;
+import GameJolt.GameJoltAPI;
+import flixel.graphics.FlxGraphic;
+import flixel.FlxG;
+import flixel.FlxGame;
+import flixel.FlxState;
+import openfl.Assets;
+import openfl.Lib;
+import openfl.display.FPS;
+import openfl.display.Sprite;
+import openfl.events.Event;
+import openfl.display.StageScaleMode;
 
 class Main extends Sprite
 {
-	public static var gjToastManager:GJToastManager; //this is needed for the child
+	var gameWidth:Int = 1280; // Width of the game in pixels (might be less / more in actual pixels depending on your zoom).
+	var gameHeight:Int = 720; // Height of the game in pixels (might be less / more in actual pixels depending on your zoom).
+	var initialState:Class<FlxState> = TitleState; // The FlxState the game starts with.
+	var zoom:Float = -1; // If -1, zoom is automatically calculated to fit the window dimensions.
+	var framerate:Int = 60; 
+	var skipSplash:Bool = true; 
+	var startFullscreen:Bool = false; 
+	public static var gjToastManager:GJToastManager; //Toast For Advice
+	public static var fpsVar:FPS;
 
-	//obviously your original code wont't look like this but u need u add these where they currently are.
-	
+	// You can pretty much ignore everything from here on - your code should go in your states.
+
+	public static function main():Void
+	{
+		Lib.current.addChild(new Main());
+	}
+
+	public function new()
+	{
+		super();
+
+		if (stage != null)
+		{
+			init();
+		}
+		else
+		{
+			addEventListener(Event.ADDED_TO_STAGE, init);
+		}
+	}
+
+	private function init(?E:Event):Void
+	{
+		if (hasEventListener(Event.ADDED_TO_STAGE))
+		{
+			removeEventListener(Event.ADDED_TO_STAGE, init);
+		}
+
+		setupGame();
+	}
+
 	private function setupGame():Void
 	{
 		gjToastManager = new GJToastManager();
 		addChild(gjToastManager); //adding the toddler
+		
+		var stageWidth:Int = Lib.current.stage.stageWidth;
+		var stageHeight:Int = Lib.current.stage.stageHeight;
+
+		var res = ClientPrefs.screenRes.split('x');
+		gameWidth = Std.parseInt(res[0]);
+		gameHeight = Std.parseInt(res[1]);
+
+		if (zoom == -1)
+		{
+			var ratioX:Float = stageWidth / gameWidth;
+			var ratioY:Float = stageHeight / gameHeight;
+			zoom = Math.min(ratioX, ratioY);
+			gameWidth = Math.ceil(stageWidth / zoom);
+			gameHeight = Math.ceil(stageHeight / zoom);
+		}
+
+		#if !debug
+		initialState = TitleState;
+		#end
+	
+		ClientPrefs.loadDefaultKeys();
+		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
+
+		#if !mobile
+		fpsVar = new FPS(10, 3, 0xFFFFFF);
+		addChild(fpsVar);
+		Lib.current.stage.align = "tl";
+		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
+		if(fpsVar != null) {
+			fpsVar.visible = ClientPrefs.showFPS;
+		}
+		#end
+
+		FlxG.autoPause = true;
+		FlxG.mouse.visible = false;
 	}
 }

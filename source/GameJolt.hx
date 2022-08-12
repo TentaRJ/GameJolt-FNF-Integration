@@ -1,67 +1,3 @@
-/*
-REQUIREMENTS:
-
-I will be editing the API for this, meaning you have to download a git:
-haxelib git tentools https://github.com/TentaRJ/tentools.git
-
-You need to download and rebuild SysTools, I think you only need it for Windows but just get it *just in case*:
-haxelib git systools https://github.com/haya3218/systools
-haxelib run lime rebuild systools [windows, mac, linux]
-
-SETUP (GameJolt):
-To add your game's keys, you will need to make a file in the source folder named GJKeys.hx (filepath: ../source/GJKeys.hx)
-
-In this file, you will need to add the GJKeys class with two public static variables, id:Int and key:String
-
-Example:
-
-package;
-class GJKeys
-{
-    public static var id:Int = 	0; // Put your game's ID here
-    public static var key:String = ""; // Put your game's private API key here
-}
-
-You can find your game's API key and ID code within the game page's settngs under the game API tab.
-
-Hope this helps! -tenta
-
-SETUP(Toasts):
-To use toasts, you will need to do a few things.
-
-Inside the Main class (Main.hx), you need to make a new variable called toastManager.
-`public static var gjToastManager.GJToastManager`
-
-Inside the setupGame function in the Main class, you will need to create the toastManager.
-`gjToastManager = new GJToastManager();`
-`addChild(gjToastManager);`
-
-Toasts can be called by using `Main.gjToastManager.createToast();`
-
-TYSM Firubii for your help! :heart:
-
-USAGE:
-To start up the API, the two commands you want to use will be:
-GameJoltAPI.connect();
-GameJoltAPI.authDaUser(FlxG.save.data.gjUser, FlxG.save.data.gjToken);
-*You can't use the API until this step is done!*
-
-FlxG.save.data.gjUser & gjToken are the save values for the username and token, used for logging in once someone already logs in.
-Save values (gjUser & gjToken) are deleted when the player signs out with GameJoltAPI.deAuthDaUser(); and are replaced with "".
-
-To open up the login menu, switch the state to GameJoltLogin.
-Exiting the login menu will throw you back to Main Menu State. You can change this in the GameJoltLogin class.
-
-The session will automatically start on login and will be pinged every 30 seconds.
-If it isn't pinged within 120 seconds, the session automatically ends from GameJolt's side.
-Thanks GameJolt, makes my life much easier! Not sarcasm!
-
-You can give a trophy by using:
-GameJoltAPI.getTrophy(trophyID);
-Each trophy has an ID attached to it. Use that to give a trophy. It could be used for something like a week clear...
-
-Hope this helps! -tenta
-*/
 package;
 
 // GameJolt things
@@ -100,7 +36,7 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
      * Inline variable to see if the user has logged in.
      * True for logged in, false for not logged in.
      */
-    static var userLogin:Bool = false;
+    public static var userLogin:Bool = false; //For User Login Achievement (Like IC)
 
     /**
      * Inline variable to see if the user wants to submit scores.
@@ -150,13 +86,13 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
     {
         if(!userLogin)
         {
-        GJApi.authUser(in1, in2, function(v:Bool)
+            GJApi.authUser(in1, in2, function(v:Bool)
             {
                 trace("user: "+(in1 == "" ? "n/a" : in1));
-                trace("token:"+in2);
+                trace("token: "+in2);
                 if(v)
                     {
-                        Main.gjToastManager.createToast(GameJoltInfo.imagePath, in1 + " signed in!", "Time: " + Date.now() + "\nGame ID: " + GJKeys.id + "\nScore Submitting: " + (GameJoltAPI.leaderboardToggle? "Enabled" : "Disabled"), false);
+                        Main.gjToastManager.createToast(GameJoltInfo.imagePath, in1 + " SIGNED IN!", "CONNECTED TO GAMEJOLT", false);
                         trace("User authenticated!");
                         FlxG.save.data.gjUser = in1;
                         FlxG.save.data.gjToken = in2;
@@ -214,7 +150,6 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
                 var bool:Bool = false;
                 if (data.exists("message"))
                     bool = true;
-                Main.gjToastManager.createToast(GameJoltInfo.imagePath, "Unlocked a new trophy"+(bool ? "... again?" : "!"), "Thank you for testing this out!\nCheck out Vs. King, it's cool", true);
             });
         }
     }
@@ -321,7 +256,7 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
     }
 }
 
-class GameJoltInfo extends FlxSubState
+class GameJoltInfo extends MusicBeatSubstate
 {    
     /**
      * Variable to change which state to go to by hitting ESCAPE or the CONTINUE buttons.
@@ -355,28 +290,10 @@ class GameJoltInfo extends FlxSubState
     /**
      * Random quotes I got from other people. Nothing more, nothing less. Just for funny.
      */
-    public static var textArray:Array<String> = [
-        "I should probably push my commits...",
-        "Where is my apple cider?",
-        "Mario be like wahoo!",
-        "[Funny IP address joke]",
-        "I love Camellia mod",
-        "I forgot to remove the IP grabber...",
-        "Play Post Mortem Mixup",
-        "*Spontaniously combusts*",
-        "Holofunk is awesome",
-        "What you know about rollin down in the deep",
-        "This isn't an NFT. Crazy right?",
-        "no not the null reference :(",
-        "Thank you BrightFyre for your help :)",
-        "Thank you Firubii for the notification code :)"
-    ];
 }
 
-class GameJoltLogin extends MusicBeatSubstate
+class GameJoltLogin extends MusicBeatState
 {
-    var gamejoltText1:FlxText;
-    var gamejoltText2:FlxText;
     var loginTexts:FlxTypedGroup<FlxText>;
     var loginBoxes:FlxTypedGroup<FlxUIInputText>;
     var loginButtons:FlxTypedGroup<FlxButton>;
@@ -398,22 +315,20 @@ class GameJoltLogin extends MusicBeatSubstate
     public static var charBop:FlxSprite;
     // var icon:FlxSprite;
     var baseX:Int = -190;
-    var versionText:FlxText;
-    var funnyText:FlxText;
     public static var login:Bool = false;
     // static var trophyCheck:Bool = false;
     override function create()
     {
         if (FlxG.save.data.lbToggle != null)
-            {
-                GameJoltAPI.leaderboardToggle = FlxG.save.data.lbToggle;
-            }
+        {
+            GameJoltAPI.leaderboardToggle = FlxG.save.data.lbToggle;
+        }
 
         if(!login)
-            {
-                FlxG.sound.playMusic(Paths.music('freakyMenu'),0);
-                FlxG.sound.music.fadeIn(2, 0, 0.85);
-            }
+        {
+            FlxG.sound.playMusic(Paths.music('freakyMenu'),0);
+            FlxG.sound.music.fadeIn(2, 0, 0.85);
+        }
 
         trace(GJApi.initialized);
         FlxG.mouse.visible = true;
@@ -430,7 +345,7 @@ class GameJoltLogin extends MusicBeatSubstate
 		add(bg);
 
         charBop = new FlxSprite(FlxG.width - 400, 250);
-		charBop.frames = Paths.getSparrowAtlas('characters/BOYFRIEND', 'shared', false);
+		charBop.frames = Paths.getSparrowAtlas('characters/BOYFRIEND', 'shared');
 		charBop.animation.addByPrefix('idle', 'BF idle dance', 24, false);
         charBop.animation.addByPrefix('loggedin', 'BF HEY', 24, false);
         charBop.setGraphicSize(Std.int(charBop.width * 1.4));
@@ -438,30 +353,12 @@ class GameJoltLogin extends MusicBeatSubstate
         charBop.flipX = false;
 		add(charBop);
 
-        gamejoltText1 = new FlxText(0, 25, 0, "GameJolt + FNF Integration", 16);
-        gamejoltText1.screenCenter(X);
-        gamejoltText1.x += baseX;
-        gamejoltText1.color = FlxColor.fromRGB(84,155,149);
-        add(gamejoltText1);
-
-        gamejoltText2 = new FlxText(0, 45, 0, Date.now().toString(), 16);
-        gamejoltText2.screenCenter(X);
-        gamejoltText2.x += baseX;
-        gamejoltText2.color = FlxColor.fromRGB(84,155,149);
-        add(gamejoltText2);
-
-        funnyText = new FlxText(5, FlxG.height - 40, 0, GameJoltInfo.textArray[FlxG.random.int(0, GameJoltInfo.textArray.length - 1)]+ " -Tenta", 12);
-        add(funnyText);
-
-        versionText = new FlxText(5, FlxG.height - 22, 0, "Game ID: " + GJKeys.id + " API: " + GameJoltInfo.version, 12);
-        add(versionText);
-
         loginTexts = new FlxTypedGroup<FlxText>(2);
         add(loginTexts);
 
         usernameText = new FlxText(0, 125, 300, "Username:", 20);
 
-        tokenText = new FlxText(0, 225, 300, "Token: (Not PW)", 20);
+        tokenText = new FlxText(0, 225, 300, "Token:", 20);
 
         loginTexts.add(usernameText);
         loginTexts.add(tokenText);
@@ -503,14 +400,15 @@ class GameJoltLogin extends MusicBeatSubstate
 
         helpBox = new FlxButton(0, 550, "GameJolt Token", function()
         {
-            if (!GameJoltAPI.getStatus())openLink('https://www.youtube.com/watch?v=T5-x7kAGGnE');
+            if (!GameJoltAPI.getStatus())
+                openLink('https://www.youtube.com/watch?v=T5-x7kAGGnE');
             else
-                {
-                    GameJoltAPI.leaderboardToggle = !GameJoltAPI.leaderboardToggle;
-                    trace(GameJoltAPI.leaderboardToggle);
-                    FlxG.save.data.lbToggle = GameJoltAPI.leaderboardToggle;
-                    Main.gjToastManager.createToast(GameJoltInfo.imagePath, "Score Submitting", "Score submitting is now " + (GameJoltAPI.leaderboardToggle ? "Enabled":"Disabled"), false);
-                }
+            {
+                GameJoltAPI.leaderboardToggle = !GameJoltAPI.leaderboardToggle;
+                trace(GameJoltAPI.leaderboardToggle);
+                FlxG.save.data.lbToggle = GameJoltAPI.leaderboardToggle;
+                Main.gjToastManager.createToast(GameJoltInfo.imagePath, "Score Submitting", "Score submitting is now " + (GameJoltAPI.leaderboardToggle ? "Enabled":"Disabled"), false);
+            }
         });
         helpBox.color = FlxColor.fromRGB(84,155,149);
 
@@ -525,7 +423,6 @@ class GameJoltLogin extends MusicBeatSubstate
             FlxG.save.flush();
             FlxG.sound.play(Paths.sound('confirmMenu'), 0.7, false, null, true, function(){
                 FlxG.save.flush();
-                FlxG.sound.music.stop();
                 FlxG.switchState(GameJoltInfo.changeState);
             });
         });
@@ -566,11 +463,6 @@ class GameJoltLogin extends MusicBeatSubstate
 
         if(GameJoltInfo.font != null)
         {       
-            // Stupid block of code >:(
-            gamejoltText1.font = GameJoltInfo.font;
-            gamejoltText2.font = GameJoltInfo.font;
-            funnyText.font = GameJoltInfo.font;
-            versionText.font = GameJoltInfo.font;
             username1.font = GameJoltInfo.font;
             username2.font = GameJoltInfo.font;
             loginBoxes.forEach(function(item:FlxUIInputText){
@@ -584,8 +476,6 @@ class GameJoltLogin extends MusicBeatSubstate
 
     override function update(elapsed:Float)
     {
-        gamejoltText2.text = Date.now().toString();
-
         if (FlxG.save.data.lbToggle == null)
         {
             FlxG.save.data.lbToggle = false;
@@ -619,7 +509,7 @@ class GameJoltLogin extends MusicBeatSubstate
     override function beatHit()
     {
         super.beatHit();
-        charBop.animation.play((GameJoltAPI.getStatus() ? "loggedin" : "idle"));
+       // charBop.animation.play((GameJoltAPI.getStatus() ? "loggedin" : "idle"));
     }
     function openLink(url:String)
     {
@@ -663,11 +553,11 @@ class GJToastManager extends Sprite
      * @param description Description for the toast
      * @param sound Want to have an alert sound? Set this to **true**! Defaults to **false**.
      */
-    public function createToast(iconPath:String, title:String, description:String, ?sound:Bool = false):Void
+    public function createToast(iconPath:String, title:String, description:String, ?sound:Bool = false, ?color:String = '#3848CC'):Void
     {
-        if (sound)FlxG.sound.play(Paths.sound('confirmMenu')); 
+        if (sound) FlxG.sound.play(Paths.sound('confirmMenu')); 
         
-        var toast = new Toast(iconPath, title, description);
+        var toast = new Toast(iconPath, title, description, color);
         addChild(toast);
 
         playTime.start(TOTAL_TIME);
@@ -786,7 +676,7 @@ class Toast extends Sprite
     var title:TextField;
     var desc:TextField;
 
-    public function new(iconPath:String, titleText:String, description:String)
+    public function new(iconPath:String, titleText:String, description:String, ?color:String = '#3848CC')
     {
         super();
         back = new Bitmap(new BitmapData(500, 125, true, 0xFF000000));
@@ -794,18 +684,21 @@ class Toast extends Sprite
         back.x = 0;
         back.y = 0;
 
+        var iconBmp = FlxG.bitmap.add(Paths.image(iconPath));
+        iconBmp.persist = true;
+        
         if(iconPath != null)
         {
-            icon = new Bitmap(openfl.utils.Assets.getBitmapData(iconPath));
-	    icon.width = 100;
+            icon = new Bitmap(iconBmp.bitmap);
+            icon.width = 100;
             icon.height = 100;
             icon.x = 10;
             icon.y = 10;
         }
 
         title = new TextField();
-        title.text = titleText;
-        title.setTextFormat(new TextFormat(openfl.utils.Assets.getFont(GameJoltInfo.fontPath).fontName, 24, 0xFFFF00, true));
+        title.text = titleText.toUpperCase();
+        title.setTextFormat(new TextFormat(openfl.utils.Assets.getFont(GameJoltInfo.fontPath).fontName, 30, FlxColor.fromString(color), true));
         title.wordWrap = true;
         title.width = 360;
         if(iconPath!=null){title.x = 120;}
@@ -813,14 +706,14 @@ class Toast extends Sprite
         title.y = 5;
 
         desc = new TextField();
-        desc.text = description;
-        desc.setTextFormat(new TextFormat(openfl.utils.Assets.getFont(GameJoltInfo.fontPath).fontName, 18, 0xFFFFFF));
+        desc.text = description.toUpperCase();
+        desc.setTextFormat(new TextFormat(openfl.utils.Assets.getFont(GameJoltInfo.fontPath).fontName, 24, FlxColor.WHITE));
         desc.wordWrap = true;
         desc.width = 360;
         desc.height = 95;
         if(iconPath!=null){desc.x = 120;}
         else{desc.x = 5;}
-        desc.y = 30;
+        desc.y = 35;
         if (titleText.length >= 25 || titleText.contains("\n"))
         {   
             desc.y += 25;
