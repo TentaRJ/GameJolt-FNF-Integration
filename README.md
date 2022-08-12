@@ -109,10 +109,8 @@ FlxG.switchState(new GameJoltLogin());
 ### 1.Install Tentools, Systools and rebuild systools
 ### 2.Setup GameJolt
 ### 3.Put the thing's on ```Main.hx``` and ```TitleState.hx```
-### as easy as that
 
-# PD:
-### you should have internet connection for login, just that
+### PS: You should have internet connection for login, just that
 
 # CHANGABLE VARIABLES:
 
