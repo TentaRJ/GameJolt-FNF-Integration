@@ -128,22 +128,25 @@ FlxG.switchState(new GameJoltLogin());
 
 # COMMANDS AVAILABLE:
 
-`GameJoltAPI.getStatus():Bool`
-> Checking to see if the user has signed in. Returns a `bool` value. `true` if signed in, `false` if not signed in.
+`userLogin(default, null):Bool = false;`
+> Flag to check if the user is actually signed in. Returns a `bool` value. `true` if signed in, `false` if not signed in.
 
-`GameJoltAPI.getuserInfo(username):String`
-> Grabs the username and usertoken of the user and returns a `String`.<br>
-> `username:Bool = true` -> `true` to grab username, `false` to grab usertoken.
+`GameJoltAPI.getUser():String`
+> Grabs the username of the user and returns it.
 
-`GameJoltAPI.getTrophy(trophyID);`
-> `TrophyID:Int` -> ID of the trophy you want the player to earn.
+`GameJoltAPI.getToken():String`
+> Grabs the game token of the user and returns it.
 
-`GameJoltAPI.checkTrophy(trophyID);`
+`GameJoltAPI.getTrophy(id:Int);`
+> Makes the user to achieve a trophy.<br>
+> `id:Int` -> ID of the trophy you want the player to achieve.
+
+`GameJoltAPI.checkTrophy(id:Int);`
 > Returns a `bool` value of the achieved status. `True` for achieved, `false` for not achieved.<br>
 > `TrophyID:Int` -> ID of the trophy you want to check.
 
-`GameJoltAPI.pullTrophy(trophyID);`
-> Returns a `Map<String,String>` of the trophy called for.<br>
+`GameJoltAPI.pullTrophy(id:Int);`
+> Returns a `Map<String,String>` of the trophy called for, or null if the trophy with the input ID is not detected correctly.<br>
 > `TrophyID:Int` -> ID of the trophy you want to pull.
 
 `GameJoltAPI.addScore(score:Int, tableID:Int, ?extraData:String);`
