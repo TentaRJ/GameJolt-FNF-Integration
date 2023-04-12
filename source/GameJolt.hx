@@ -40,23 +40,18 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
 
 	/**
 	 * Grabs the username of the actual logged in user and returns it
-	 * @param username Bool value
-	 * @return String 
 	 */
 	public static function getUser():String
 		return GJApi.username;
 
 	/**
 	 * Grabs the game token of the actual logged in user and returns it
-	 * @param username Bool value
-	 * @return String 
 	 */
 	public static function getToken():String
 		return GJApi.usertoken;
 
 	/**
 	 * Sets the game API key from GJKeys.api
-	 * Doesn't return anything
 	 */
 	public static function connect() {
 		trace("Grabbing API keys...");
@@ -147,6 +142,11 @@ class GameJoltAPI // Connects to tentools.api.FlxGameJolt
 		return value;
 	}
 
+	/**
+	 * Pulls a trophy info by passing its ID
+	 * @param id Trophy ID
+	 * @return Map<String,String> or null if the process failed
+	 */
 	public static function pullTrophy(id:Int):Null<Map<String, String>> {
 		var returnable:Map<String, String> = [];
 
@@ -285,22 +285,13 @@ class GameJoltLogin extends MusicBeatState {
 	var helpBox:FlxButton;
 	var logOutBox:FlxButton;
 	var cancelBox:FlxButton;
-	// var profileIcon:FlxSprite;
 	var username1:FlxText;
 	var username2:FlxText;
-
-	// var gamename:FlxText;
-	// var trophy:FlxBar;
-	// var trophyText:FlxText;
-	// var missTrophyText:FlxText;
-	public static var charBop:FlxSprite;
-
-	// var icon:FlxSprite;
 	var baseX:Int = -190;
 
+	public static var charBop:FlxSprite;
 	public static var login:Bool = false;
 
-	// static var trophyCheck:Bool = false;
 	override function create() {
 		if (FlxG.save.data.lbToggle != null)
 			GameJoltAPI.leaderboardToggle = FlxG.save.data.lbToggle;
