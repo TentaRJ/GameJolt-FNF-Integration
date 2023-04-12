@@ -1,8 +1,19 @@
 package;
 
-class GJKeys
-{
-    public static var id:Int = 0; // Put your game's ID here
-    public static var key:String = ""; // Put your game's private API key here, you can find it in your game's settings in GameJolt under the API tab!
-//NOTE ABOUT PRIVATE API: DO NOT SHARE IT!!!!
+/**
+ * YOU MUST NOT SHARE THESE DATA WITH ANYONE!!
+ * 
+ * 
+ * The publication of these data would lead to hacking or other kinds of alterations in your mod!
+ * To solve this problem, you must add the following line to the `.gitignore` file in the main directory
+ * ```gitignore
+ * source/gamejolt/GJKeys.hx
+ * ```
+ */
+class GJKeys {
+	/** Your Game ID from GameJolt **/
+	public static var id:Int = 0;
+
+	/** Your Game Private Key from GameJolt **/
+	public static var key:String = '';
 }
